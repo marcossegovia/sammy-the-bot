@@ -1,0 +1,10 @@
+hash: 9cd7195869ed61fb277cc29188af2f704d7b3a9e18070e9c8117d4bed53fcb1b
+updated: 2016-12-04T12:05:19.264111686+01:00
+imports:
+- name: github.com/go-telegram-bot-api/telegram-bot-api
+  version: 0a57807db79efce7f6719fbb2c0e0f83fda79aec
+- name: github.com/spf13/viper
+  version: 651d9d916abc3c3d6a91a12549495caba5edffd2
+- name: github.com/technoweenie/multipartstreamer
+  version: a90a01d73ae432e2611d178c18367fbaa13e0154
+testImports: []

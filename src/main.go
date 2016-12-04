@@ -6,17 +6,19 @@ import (
 
 	"github.com/spf13/viper"
 	"github.com/go-telegram-bot-api/telegram-bot-api"
+	"math/rand"
 )
 
 func main() {
 
-	viper.SetConfigName("sammy")
-	viper.AddConfigPath("$GOPATH/src/github.com/MarcosSegovia/SammyTheBot/config")
-	err := viper.ReadInConfig()
+	configurationFileHandler := viper.New()
+	configurationFileHandler.SetConfigName("sammy_config")
+	configurationFileHandler.AddConfigPath("$GOPATH/src/github.com/MarcosSegovia/SammyTheBot/config")
+	err := configurationFileHandler.ReadInConfig()
 	if err != nil {
 		panic(fmt.Errorf("Fatal error config file: %s \n", err))
 	}
-	botToken := viper.GetString("sammyBotToken")
+	botToken := configurationFileHandler.GetString("configuration.sammyBotToken")
 
 	bot, err := tgbotapi.NewBotAPI(botToken)
 	if err != nil {
@@ -27,6 +29,13 @@ func main() {
 
 	log.Printf("Authorized on account %s", bot.Self.UserName)
 
+	sammyBrainFileHandler := viper.New()
+	sammyBrainFileHandler.SetConfigName("sammy_brain")
+	sammyBrainFileHandler.AddConfigPath("$GOPATH/src/github.com/MarcosSegovia/SammyTheBot/sammy")
+	err = sammyBrainFileHandler.ReadInConfig()
+	if err != nil {
+		panic(fmt.Errorf("Fatal error config file: %s \n", err))
+	}
 	u := tgbotapi.NewUpdate(0)
 	u.Timeout = 60
 
@@ -39,9 +48,18 @@ func main() {
 
 		log.Printf("[%s] %s", update.Message.From.UserName, update.Message.Text)
 
-		msg := tgbotapi.NewMessage(update.Message.Chat.ID, update.Message.Text)
-		msg.ReplyToMessageID = update.Message.MessageID
-
+		msg := tgbotapi.MessageConfig{}
+		if "Hi" == update.Message.Text {
+			some_salutations := sammyBrainFileHandler.GetStringSlice("welcome.salutations")
+			msg = tgbotapi.NewMessage(update.Message.Chat.ID, randomStringFromStringSlice(some_salutations))
+		} else {
+			msg = tgbotapi.NewMessage(update.Message.Chat.ID, update.Message.Text)
+		}
 		bot.Send(msg)
 	}
 }
+
+func randomStringFromStringSlice(stringOfSlices []string) (string) {
+	return stringOfSlices[rand.Intn(len(stringOfSlices))]
+}
+

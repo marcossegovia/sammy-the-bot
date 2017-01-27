@@ -7,3 +7,9 @@ salutations = [
     "Time to make me work?",
     "It's been a while, it's all okay?"
 ]
+
+[commands]
+commands = [
+    "/start",
+    "/help"
+]

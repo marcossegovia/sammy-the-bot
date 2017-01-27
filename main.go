@@ -6,6 +6,7 @@ import (
 
 	"github.com/spf13/viper"
 	"github.com/go-telegram-bot-api/telegram-bot-api"
+	"bytes"
 )
 
 var cfg, brain *viper.Viper
@@ -29,6 +30,12 @@ func init() {
 
 func main() {
 	token := cfg.GetString("configuration.token")
+	var commands = map[string]string{}
+	availableCmds := brain.GetStringSlice("commands.commands")
+	for _, cmd := range availableCmds {
+		index := cmd[1:]
+		commands[index] = cmd
+	}
 	bot, err := tgbotapi.NewBotAPI(token)
 	if err != nil {
 		log.Printf("could not initialize bot: %v", err)
@@ -49,6 +56,15 @@ func main() {
 		log.Printf("[%v] %v", update.Message.From.UserName, update.Message.Text)
 
 		msg := tgbotapi.NewMessage(update.Message.Chat.ID, "I do not know what to tell you.")
+		if update.Message.IsCommand() {
+			if name, ok := commands[update.Message.Text[1:]]; ok {
+				var buffer bytes.Buffer
+				buffer.WriteString("You asked me to do ")
+				buffer.WriteString(name)
+				buffer.WriteString(" and I can do it :)")
+				msg.Text = buffer.String()
+			}
+		}
 		if "Hi" == update.Message.Text {
 			salutations := brain.GetStringSlice("welcome.salutations")
 			msg.Text = salute(salutations)

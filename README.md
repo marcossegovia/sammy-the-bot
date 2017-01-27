@@ -1,5 +1,7 @@
 #Sammy the Bot
 
+This is the repository for Sammy source code.
+
 ```                                                   
                                                   .:+ossyyso:`                         
                                                 .+syyssssssooo+.                       

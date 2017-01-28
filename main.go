@@ -2,42 +2,37 @@ package main
 
 import (
 	"log"
-	"math/rand"
+	"bytes"
 
 	"github.com/spf13/viper"
 	"github.com/go-telegram-bot-api/telegram-bot-api"
-	"bytes"
+	"github.com/MarcosSegovia/sammy-the-bot/sammy"
 )
 
 func main() {
 	cfg, err := read("sammy_config")
-	if err != nil {
-		log.Printf("could not read config file: %v", err)
-	}
+	check(err, "could not read config file: %v")
 	brain, err := read("sammy_brain")
-	if err != nil {
-		log.Printf("could not read config file: %v", err)
-	}
+	check(err, "could not read config file: %v")
+
+	sam := sammy.NewSammySpeaker(brain)
 	token := cfg.GetString("configuration.token")
 	commands := setCommands(brain)
 	bot, err := tgbotapi.NewBotAPI(token)
-	if err != nil {
-		log.Printf("could not initialize bot: %v", err)
-	}
+	check(err, "could not initialize bot: %v")
 	log.Printf("Authorized on account %v", bot.Self.UserName)
 
 	u := tgbotapi.NewUpdate(0)
 	u.Timeout = 60
 	updates, err := bot.GetUpdatesChan(u)
-
 	for update := range updates {
 		if update.Message == nil {
 			continue
 		}
-
 		log.Printf("[%v] %v", update.Message.From.UserName, update.Message.Text)
-
-		msg := tgbotapi.NewMessage(update.Message.Chat.ID, "I do not know what to tell you.")
+		req := sammy.Request(update.Message.Text)
+		resp := sam.Process(req)
+		msg := tgbotapi.NewMessage(update.Message.Chat.ID, resp.String())
 		if update.Message.IsCommand() {
 			if name, ok := commands[update.Message.Text[1:]]; ok {
 				var buffer bytes.Buffer
@@ -47,12 +42,13 @@ func main() {
 				msg.Text = buffer.String()
 			}
 		}
-		if "Hi" == update.Message.Text {
-			salutations := brain.GetStringSlice("welcome.salutations")
-			msg.Text = salute(salutations)
-		}
-		log.Printf("I'm responding: %v", msg.Text)
 		bot.Send(msg)
+	}
+}
+
+func check(err error, msg string) {
+	if err != nil {
+		log.Printf(msg, err)
 	}
 }
 
@@ -75,8 +71,4 @@ func setCommands(brain *viper.Viper) map[string]string {
 		commands[index] = cmd
 	}
 	return commands
-}
-
-func salute(salutations []string) (string) {
-	return salutations[rand.Intn(len(salutations))]
 }

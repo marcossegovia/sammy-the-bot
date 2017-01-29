@@ -16,9 +16,9 @@ func main() {
 
 	bot := sammy.NewSammySpeaker(brain)
 	token := cfg.GetString("configuration.token")
-	//commands := setCommands(brain)
 	api, err := tgbotapi.NewBotAPI(token)
 	check(err, "could not initialize bot: %v")
+
 	log.Printf("Authorized on account %v", api.Self.UserName)
 
 	u := tgbotapi.NewUpdate(0)
@@ -53,13 +53,4 @@ func read(path string) (*viper.Viper, error) {
 	}
 
 	return f, nil
-}
-func setCommands(brain *viper.Viper) map[string]string {
-	var commands = map[string]string{}
-	availableCmds := brain.GetStringSlice("commands.commands")
-	for _, cmd := range availableCmds {
-		index := cmd[1:]
-		commands[index] = cmd
-	}
-	return commands
 }

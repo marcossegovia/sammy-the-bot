@@ -3,3 +3,5 @@ import:
 - package: github.com/go-telegram-bot-api/telegram-bot-api
   version: ^4.6.0
 - package: github.com/spf13/viper
+- package: github.com/danbondd/temperature
+  version: ^1.0.0

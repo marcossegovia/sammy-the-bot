@@ -17,12 +17,14 @@ func (resp Response) String() string {
 
 type Sammy struct {
 	brain    *viper.Viper
+	config   *viper.Viper
 	commands map[string]interface{}
 }
 
-func NewSammySpeaker(brain *viper.Viper) *Sammy {
+func NewSammySpeaker(brain, cfg *viper.Viper) *Sammy {
 	s := new(Sammy)
 	s.brain = brain
+	s.config = cfg
 	s.load()
 	return s
 }
@@ -35,9 +37,15 @@ func (sammy *Sammy) Process(req Request) Response {
 	}
 	for i, v := range sammy.commands {
 		if "start" == i || "help" == i {
-			cmd := v.(command.Cmd)
+			cmd := v.(*command.Cmd)
 			if string(cmd.Exec) == string(req) {
-				resp = sammy.ProcessCmd(&cmd)
+				resp = sammy.ProcessCmd(cmd)
+			}
+		}
+		if "weather" == i {
+			cmd := v.(*command.Weather)
+			if string(cmd.Cmd.Exec) == string(req) {
+				resp = sammy.ProcessCmd(cmd)
 			}
 		}
 	}
@@ -52,8 +60,9 @@ func (sammy *Sammy) ProcessCmd(cmd command.Command) Response {
 
 func (sammy *Sammy) load() {
 	var commands = make(map[string]interface{}, 2)
-	commands["start"] = command.Cmd{Tag:"start", Exec: "/start"}
-	commands["help"] = command.Cmd{Tag:"help", Exec: "/help"}
+	commands["start"] = command.NewCommand("start", "/start")
+	commands["help"] = command.NewCommand("help", "/help")
+	commands["weather"] = command.NewWeatherCommand(sammy.config.GetString("configuration.weather"))
 	sammy.commands = commands
 }
 

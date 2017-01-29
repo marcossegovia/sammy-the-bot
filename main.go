@@ -14,7 +14,7 @@ func main() {
 	brain, err := read("sammy_brain")
 	check(err, "could not read config file: %v")
 
-	bot := sammy.NewSammySpeaker(brain)
+	bot := sammy.NewSammySpeaker(brain, cfg)
 	token := cfg.GetString("configuration.token")
 	api, err := tgbotapi.NewBotAPI(token)
 	check(err, "could not initialize bot: %v")

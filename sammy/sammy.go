@@ -8,11 +8,20 @@ import (
 	"github.com/MarcosSegovia/sammy-the-bot/command"
 )
 
-type Request string
-type Response string
+const (
+	NO_RESPONSE = 0
+	CONVERSATION = 1
+	COMMAND = 2
+)
 
-func (resp Response) String() string {
-	return string(resp)
+type Request string
+type Response struct {
+	Response string
+	Status   int
+}
+
+func (r Response) String() string {
+	return string(r.Response)
 }
 
 type Sammy struct {
@@ -30,10 +39,10 @@ func NewSammySpeaker(brain, cfg *viper.Viper) *Sammy {
 }
 
 func (sammy *Sammy) Process(req Request) Response {
-	resp := Response("I do not know what to tell you.")
+	resp := Response{"I do not know what to tell you.", NO_RESPONSE}
 	if "Hi" == req {
 		salutations := sammy.brain.GetStringSlice("welcome.salutations")
-		resp = Response(salute(salutations))
+		resp = Response{salute(salutations), CONVERSATION}
 	}
 	for i, v := range sammy.commands {
 		if "start" == i || "help" == i {
@@ -55,7 +64,7 @@ func (sammy *Sammy) Process(req Request) Response {
 
 func (sammy *Sammy) ProcessCmd(cmd command.Command) Response {
 	buffer := cmd.Evaluate()
-	return Response(buffer.String())
+	return Response{buffer.String(), COMMAND}
 }
 
 func (sammy *Sammy) load() {

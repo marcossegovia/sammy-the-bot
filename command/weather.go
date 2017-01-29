@@ -34,13 +34,15 @@ func (w *Weather) Evaluate() bytes.Buffer {
 	buffer.WriteString("http://api.openweathermap.org/data/2.5/weather?id=6356055&appid=")
 	buffer.WriteString(w.Token)
 	resp, err := http.Get(buffer.String())
-	check(err, "could not get an appropriate response: %v")
 	defer resp.Body.Close()
+	check(err, "could not get an appropriate response: %v")
+
 	body, err := ioutil.ReadAll(resp.Body)
 	wresp := Response{}
 	err = json.Unmarshal(body, &wresp)
 	check(err, "could not parse from json: %v")
 	buffer.Reset()
+
 	buffer.WriteString("Seems that we will have ")
 	buffer.WriteString(wresp.Conditions[0]["main"].(string))
 	buffer.WriteString(" for today here in ")

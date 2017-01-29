@@ -2,7 +2,6 @@ package main
 
 import (
 	"log"
-	"bytes"
 
 	"github.com/spf13/viper"
 	"github.com/go-telegram-bot-api/telegram-bot-api"
@@ -15,34 +14,26 @@ func main() {
 	brain, err := read("sammy_brain")
 	check(err, "could not read config file: %v")
 
-	sam := sammy.NewSammySpeaker(brain)
+	bot := sammy.NewSammySpeaker(brain)
 	token := cfg.GetString("configuration.token")
-	commands := setCommands(brain)
-	bot, err := tgbotapi.NewBotAPI(token)
+	//commands := setCommands(brain)
+	api, err := tgbotapi.NewBotAPI(token)
 	check(err, "could not initialize bot: %v")
-	log.Printf("Authorized on account %v", bot.Self.UserName)
+	log.Printf("Authorized on account %v", api.Self.UserName)
 
 	u := tgbotapi.NewUpdate(0)
 	u.Timeout = 60
-	updates, err := bot.GetUpdatesChan(u)
+	updates, err := api.GetUpdatesChan(u)
 	for update := range updates {
 		if update.Message == nil {
 			continue
 		}
 		log.Printf("[%v] %v", update.Message.From.UserName, update.Message.Text)
+
 		req := sammy.Request(update.Message.Text)
-		resp := sam.Process(req)
+		resp := bot.Process(req)
 		msg := tgbotapi.NewMessage(update.Message.Chat.ID, resp.String())
-		if update.Message.IsCommand() {
-			if name, ok := commands[update.Message.Text[1:]]; ok {
-				var buffer bytes.Buffer
-				buffer.WriteString("You asked me to do ")
-				buffer.WriteString(name)
-				buffer.WriteString(" and I can do it :)")
-				msg.Text = buffer.String()
-			}
-		}
-		bot.Send(msg)
+		api.Send(msg)
 	}
 }
 

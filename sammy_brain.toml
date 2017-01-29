@@ -8,8 +8,12 @@ salutations = [
     "It's been a while, it's all okay?"
 ]
 
-[commands]
-commands = [
-    "/start",
-    "/help"
-]
+[[commands]]
+"cmd" = "/start"
+"func" = "NewCommand"
+"params" = []
+
+[[commands]]
+"cmd" = "/help"
+"func" = "NewCommand"
+"params" = []

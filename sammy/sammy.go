@@ -39,7 +39,7 @@ func NewSammySpeaker(brain, cfg *viper.Viper) *Sammy {
 }
 
 func (sammy *Sammy) Process(req Request) Response {
-	resp := Response{"I do not know what to tell you.", NO_RESPONSE}
+	resp := Response{"I do not know what to tell you. Maybe you need /help", NO_RESPONSE}
 	if "Hi" == req {
 		salutations := sammy.brain.GetStringSlice("welcome.salutations")
 		resp = Response{salute(salutations), CONVERSATION}

@@ -25,29 +25,20 @@ func main() {
 	u.Timeout = 60
 	updates, err := api.GetUpdatesChan(u)
 	for update := range updates {
-		if update.CallbackQuery != nil {
-			api.AnswerCallbackQuery(tgbotapi.NewCallback(update.CallbackQuery.ID, ""))
-			msg := tgbotapi.NewMessage(update.CallbackQuery.Message.Chat.ID, update.CallbackQuery.Data)
-			api.Send(msg)
-			check(err, "could not send message because: %v")
-			continue
-		}
+		//if update.CallbackQuery != nil {
+		//	api.AnswerCallbackQuery(tgbotapi.NewCallback(update.CallbackQuery.ID, ""))
+		//	msg := tgbotapi.NewMessage(update.CallbackQuery.Message.Chat.ID, update.CallbackQuery.Data)
+		//	api.Send(msg)
+		//	check(err, "could not send message because: %v")
+		//	continue
+		//}
 		log.Printf("[%v] %v", update.Message.From.UserName, update.Message.Text)
 
 		req := sammy.Request(update.Message.Text)
 		resp := bot.Process(req)
 		msg := tgbotapi.NewMessage(update.Message.Chat.ID, resp.String())
-		messageSent, err := api.Send(msg)
+		_, err := api.Send(msg)
 		check(err, "could not send message because: %v")
-
-		if sammy.NO_RESPONSE == resp.Status {
-			helpButton := tgbotapi.NewInlineKeyboardButtonData("Need help?", "/help")
-			buttons := tgbotapi.NewInlineKeyboardRow(helpButton)
-			keyboard := tgbotapi.NewInlineKeyboardMarkup(buttons)
-			edit := tgbotapi.NewEditMessageReplyMarkup(msg.ChatID, messageSent.MessageID, keyboard)
-			messageSent, err = api.Send(edit)
-			check(err, "could not send message because: %v")
-		}
 	}
 }
 

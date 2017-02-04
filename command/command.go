@@ -13,9 +13,8 @@ type Cmd struct {
 
 func (c *Cmd) Evaluate() bytes.Buffer {
 	var buffer bytes.Buffer
-	buffer.WriteString("You asked me to do ")
+	buffer.WriteString("I have no action on ")
 	buffer.WriteString(c.Exec)
-	buffer.WriteString(" and I can do it :)")
 	return buffer
 }
 

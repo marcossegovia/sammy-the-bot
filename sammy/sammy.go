@@ -9,9 +9,9 @@ import (
 )
 
 const (
-	NO_RESPONSE = 0
+	NO_RESPONSE  = 0
 	CONVERSATION = 1
-	COMMAND = 2
+	COMMAND      = 2
 )
 
 type Request string
@@ -27,7 +27,7 @@ func (r Response) String() string {
 type Sammy struct {
 	brain    *viper.Viper
 	config   *viper.Viper
-	commands map[string]interface{}
+	commands *[]interface{}
 }
 
 func NewSammySpeaker(brain, cfg *viper.Viper) *Sammy {
@@ -44,15 +44,17 @@ func (sammy *Sammy) Process(req Request) Response {
 		salutations := sammy.brain.GetStringSlice("welcome.salutations")
 		resp = Response{salute(salutations), CONVERSATION}
 	}
-	for i, v := range sammy.commands {
-		if "start" == i || "help" == i {
-			cmd := v.(*command.Cmd)
-			if string(cmd.Exec) == string(req) {
+	for _, v := range *sammy.commands {
+		switch cmd := v.(type) {
+		case *command.Start:
+			if string(cmd.Cmd.Exec) == string(req) {
 				resp = sammy.ProcessCmd(cmd)
 			}
-		}
-		if "weather" == i {
-			cmd := v.(*command.Weather)
+		case *command.Help:
+			if string(cmd.Cmd.Exec) == string(req) {
+				resp = sammy.ProcessCmd(cmd)
+			}
+		case *command.Weather:
 			if string(cmd.Cmd.Exec) == string(req) {
 				resp = sammy.ProcessCmd(cmd)
 			}
@@ -68,11 +70,16 @@ func (sammy *Sammy) ProcessCmd(cmd command.Command) Response {
 }
 
 func (sammy *Sammy) load() {
-	var commands = make(map[string]interface{}, 2)
-	commands["start"] = command.NewCommand("start", "/start")
-	commands["help"] = command.NewCommand("help", "/help")
-	commands["weather"] = command.NewWeatherCommand(sammy.config.GetString("configuration.weather"))
-	sammy.commands = commands
+	cmds := new([]interface{})
+	cnames := []string{}
+
+	startCmd := command.NewStart()
+	*cmds = append(*cmds, startCmd)
+	weatherCmd := command.NewWeather(sammy.config.GetString("configuration.weather"))
+	*cmds = append(*cmds, weatherCmd)
+	cnames = append(cnames, weatherCmd.Description())
+	*cmds = append(*cmds, command.NewHelp(cnames))
+	sammy.commands = cmds
 }
 
 func salute(salutations []string) (string) {

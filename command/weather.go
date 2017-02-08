@@ -22,9 +22,9 @@ type Response struct {
 	City       string `json:"name"`
 }
 
-func NewWeatherCommand(token string) (*Weather) {
+func NewWeather(token string) *Weather {
 	wCmd := new(Weather)
-	wCmd.Cmd = NewCommand("weather", "/weather")
+	wCmd.Cmd = NewCommand("weather", "/weather", "Show current forecast")
 	wCmd.Token = token
 	return wCmd
 }
@@ -86,6 +86,10 @@ func (w *Weather) Evaluate() bytes.Buffer {
 	celsius := tempconv.KelvinToCelcius(tempconv.Kelvin(wresp.Main["temp"]))
 	buffer.WriteString(celsius.String())
 	return buffer
+}
+
+func (w *Weather) Description() string {
+	return w.Cmd.Exec + " - " + w.Cmd.Desc
 }
 
 func check(err error, msg string) {

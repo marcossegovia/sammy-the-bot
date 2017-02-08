@@ -32,6 +32,9 @@ func main() {
 		//	check(err, "could not send message because: %v")
 		//	continue
 		//}
+		if update.Message == nil {
+			continue
+		}
 		log.Printf("[%v] %v", update.Message.From.UserName, update.Message.Text)
 
 		req := sammy.Request(update.Message.Text)

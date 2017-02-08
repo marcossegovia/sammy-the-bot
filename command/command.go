@@ -3,24 +3,20 @@ package command
 import "bytes"
 
 type Command interface {
+	Description() string
 	Evaluate() bytes.Buffer
 }
 
 type Cmd struct {
 	Tag  string
 	Exec string
+	Desc string
 }
 
-func (c *Cmd) Evaluate() bytes.Buffer {
-	var buffer bytes.Buffer
-	buffer.WriteString("I have no action on ")
-	buffer.WriteString(c.Exec)
-	return buffer
-}
-
-func NewCommand(tag, exec string) *Cmd {
+func NewCommand(tag, exec, desc string) *Cmd {
 	c := new(Cmd)
 	c.Tag = tag
 	c.Exec = exec
+	c.Desc = desc
 	return c
 }

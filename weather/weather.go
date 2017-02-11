@@ -57,6 +57,14 @@ func (w *Weather) Evaluate(msg *tgbotapi.Message) {
 		check(err, "could not send message because: %v")
 		return
 	}
+	newMsg := tgbotapi.NewMessage(msg.Chat.ID, "Sorry, this does not fit here...")
+	defer func() {
+		keyboard := tgbotapi.NewRemoveKeyboard(false)
+		newMsg.ReplyMarkup = keyboard
+		_, err := w.sammy.Api.Send(newMsg)
+		check(err, "could not send message because: %v")
+	}()
+
 	oldMsg = nil
 	request := buildRequest(w, msg)
 	if request == nil {
@@ -118,9 +126,7 @@ func (w *Weather) Evaluate(msg *tgbotapi.Message) {
 	buffer.WriteString(", with a temperature of ")
 	celsius := tempconv.KelvinToCelcius(tempconv.Kelvin(wresp.Main["temp"]))
 	buffer.WriteString(celsius.String())
-	newMsg := tgbotapi.NewMessage(msg.Chat.ID, buffer.String())
-	_, err = w.sammy.Api.Send(newMsg)
-	check(err, "could not send message because: %v")
+	newMsg.Text = buffer.String()
 
 }
 func buildRequest(w *Weather, msg *tgbotapi.Message) *bytes.Buffer {
@@ -134,7 +140,7 @@ func buildRequest(w *Weather, msg *tgbotapi.Message) *bytes.Buffer {
 		return buffer
 	}
 	if msg.Text == "Barcelona" {
-		buffer.WriteString("&id="+ BARCELONA)
+		buffer.WriteString("&id=" + BARCELONA)
 		return buffer
 	}
 	return nil

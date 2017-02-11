@@ -1,4 +1,4 @@
 vendor/*/
 bin
 .env
-sammy_config.toml
+sammy_brain.toml

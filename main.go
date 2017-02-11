@@ -3,12 +3,12 @@ package main
 import (
 	"log"
 
-	"github.com/spf13/viper"
-	"github.com/go-telegram-bot-api/telegram-bot-api"
+	"github.com/MarcosSegovia/sammy-the-bot/help"
 	"github.com/MarcosSegovia/sammy-the-bot/sammy"
 	"github.com/MarcosSegovia/sammy-the-bot/start"
 	"github.com/MarcosSegovia/sammy-the-bot/weather"
-	"github.com/MarcosSegovia/sammy-the-bot/help"
+	"github.com/go-telegram-bot-api/telegram-bot-api"
+	"github.com/spf13/viper"
 )
 
 func main() {
@@ -28,6 +28,7 @@ func main() {
 	u.Timeout = 60
 
 	updates, err := s.Api.GetUpdatesChan(u)
+	check(err, "ops, something happens: %v")
 	for update := range updates {
 		msg := update.Message
 		if update.CallbackQuery != nil {
@@ -53,7 +54,7 @@ func main() {
 		//log.Printf("I'm responding: %v", resp)
 	}
 }
-func loadCommands(s *sammy.Sammy) (*[]sammy.Command) {
+func loadCommands(s *sammy.Sammy) *[]sammy.Command {
 	cmds := new([]sammy.Command)
 	cnames := []string{}
 

@@ -3,8 +3,8 @@ package sammy
 import (
 	"math/rand"
 
-	"github.com/spf13/viper"
 	"github.com/go-telegram-bot-api/telegram-bot-api"
+	"github.com/spf13/viper"
 )
 
 type Response struct {
@@ -29,6 +29,6 @@ func NewSammy(brain *viper.Viper, api *tgbotapi.BotAPI) *Sammy {
 	return s
 }
 
-func salute(salutations []string) (string) {
+func salute(salutations []string) string {
 	return salutations[rand.Intn(len(salutations))]
 }

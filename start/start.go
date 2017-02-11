@@ -4,8 +4,8 @@ import (
 	"bytes"
 	"log"
 
-	"github.com/go-telegram-bot-api/telegram-bot-api"
 	"github.com/MarcosSegovia/sammy-the-bot/sammy"
+	"github.com/go-telegram-bot-api/telegram-bot-api"
 )
 
 type Start struct {

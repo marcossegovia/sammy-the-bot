@@ -1,17 +1,16 @@
 package weather
 
 import (
-	"io/ioutil"
-	"net/http"
-	"log"
 	"bytes"
 	"encoding/json"
+	"io/ioutil"
+	"log"
+	"net/http"
+	"strconv"
 
+	"github.com/MarcosSegovia/sammy-the-bot/sammy"
 	"github.com/danbondd/temperature/tempconv"
 	"github.com/go-telegram-bot-api/telegram-bot-api"
-	"github.com/MarcosSegovia/sammy-the-bot/sammy"
-	"strconv"
-	"fmt"
 )
 
 const (
@@ -24,10 +23,10 @@ type Weather struct {
 }
 
 type Response struct {
-	Coord      map[string]float64 `json:"coord"`
+	Coord      map[string]float64       `json:"coord"`
 	Conditions []map[string]interface{} `json:"weather"`
-	Main       map[string]float64 `json:"main"`
-	City       string `json:"name"`
+	Main       map[string]float64       `json:"main"`
+	City       string                   `json:"name"`
 }
 
 func NewWeather(s *sammy.Sammy) *Weather {
@@ -79,14 +78,13 @@ func (w *Weather) Evaluate(msg *tgbotapi.Message) {
 	err = json.Unmarshal(body, &wresp)
 	check(err, "could not parse from json: %v")
 	if len(wresp.Conditions) == 0 {
-		fmt.Println("ERROR !")
 		return
 	}
 	var buffer bytes.Buffer
 
 	buffer.WriteString("Seems that we will have ")
 	buffer.WriteString(wresp.Conditions[0]["main"].(string) + " ")
-	switch  wresp.Conditions[0]["id"].(float64) {
+	switch wresp.Conditions[0]["id"].(float64) {
 
 	//Thunder
 	case 200, 201, 202, 210, 211, 212, 221, 230, 231, 232:

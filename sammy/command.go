@@ -1,10 +1,10 @@
-package command
+package sammy
 
-import "bytes"
+import "github.com/go-telegram-bot-api/telegram-bot-api"
 
 type Command interface {
 	Description() string
-	Evaluate() bytes.Buffer
+	Evaluate(msg *tgbotapi.Message)
 }
 
 type Cmd struct {

@@ -28,7 +28,7 @@ func main() {
 	u.Timeout = 60
 
 	updates, err := s.Api.GetUpdatesChan(u)
-	check(err, "ops, something happens: %v")
+	check(err, "could not get telegram message: %v")
 	for update := range updates {
 		msg := update.Message
 		if update.CallbackQuery != nil {
@@ -41,17 +41,19 @@ func main() {
 		if update.Message == nil {
 			continue
 		}
-		log.Printf("[%v] %v", update.Message.From.UserName, update.Message.Text)
-
-		//resp := Response{"I do not know what to tell you. Maybe you need /help", NO_RESPONSE}
-		//if "Hi" == msg.Text {
-		//	salutations := sammy.Brain.GetStringSlice("welcome.salutations")
-		//	resp = Response{salute(salutations), CONVERSATION}
-		//}
+		commanded := false
 		for _, cmd := range *commands {
-			cmd.Evaluate(msg)
+			eval, err := cmd.Evaluate(msg)
+			if eval {
+				commanded = true
+			}
+			check(err, "command failed: %v")
 		}
-		//log.Printf("I'm responding: %v", resp)
+		if !commanded {
+			err = s.Process(msg)
+			check(err, "conversation failed: %v")
+		}
+		commanded = false
 	}
 }
 func loadCommands(s *sammy.Sammy) *[]sammy.Command {

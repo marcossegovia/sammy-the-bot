@@ -2,7 +2,7 @@ package start
 
 import (
 	"bytes"
-	"log"
+	"fmt"
 
 	"github.com/MarcosSegovia/sammy-the-bot/sammy"
 	"github.com/go-telegram-bot-api/telegram-bot-api"
@@ -10,34 +10,31 @@ import (
 
 type Start struct {
 	sammy *sammy.Sammy
-	Cmd   *sammy.Cmd
+	cmd   *sammy.Cmd
 }
 
 func NewStart(sam *sammy.Sammy) *Start {
 	s := new(Start)
 	s.sammy = sam
-	s.Cmd = sammy.NewCommand("start", "/start", "Initialize Sammy :D")
+	s.cmd = sammy.NewCommand("start", "/start", "Initialize Sammy :D")
 	return s
 }
 
-func (s *Start) Evaluate(msg *tgbotapi.Message) {
-	if msg.Text != s.Cmd.Exec {
-		return
+func (s *Start) Evaluate(msg *tgbotapi.Message) (bool, error) {
+	if msg.Text != s.cmd.Exec {
+		return false, nil
 	}
 
 	var buffer bytes.Buffer
 	buffer.WriteString("Im your botpher assistance on whatever you need.\n My source code is in https://github.com/MarcosSegovia/sammy-the-bot\n Just follow /help to see things I can do. \n\n")
 	newMsg := tgbotapi.NewMessage(msg.Chat.ID, buffer.String())
 	_, err := s.sammy.Api.Send(newMsg)
-	check(err, "could not send message because: %v")
+	if err != nil {
+		return false, fmt.Errorf("could not send message because: %v", err)
+	}
+	return true, nil
 }
 
 func (s *Start) Description() string {
-	return s.Cmd.Exec + " - " + s.Cmd.Desc
-}
-
-func check(err error, msg string) {
-	if err != nil {
-		log.Printf(msg, err)
-	}
+	return s.cmd.Exec + " - " + s.cmd.Desc
 }

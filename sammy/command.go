@@ -4,7 +4,7 @@ import "github.com/go-telegram-bot-api/telegram-bot-api"
 
 type Command interface {
 	Description() string
-	Evaluate(msg *tgbotapi.Message)
+	Evaluate(msg *tgbotapi.Message) (bool, error)
 }
 
 type Cmd struct {

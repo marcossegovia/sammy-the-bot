@@ -3,8 +3,9 @@ package weather
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
+	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"strconv"
 
@@ -19,7 +20,7 @@ const (
 
 type Weather struct {
 	sammy *sammy.Sammy
-	Cmd   *sammy.Cmd
+	cmd   *sammy.Cmd
 }
 
 type Response struct {
@@ -32,17 +33,17 @@ type Response struct {
 func NewWeather(s *sammy.Sammy) *Weather {
 	w := new(Weather)
 	w.sammy = s
-	w.Cmd = sammy.NewCommand("weather", "/weather", "Show current forecast")
+	w.cmd = sammy.NewCommand("weather", "/weather", "Show current forecast")
 	return w
 }
 
 var oldMsg *tgbotapi.Message
 
 //return errors
-func (w *Weather) Evaluate(msg *tgbotapi.Message) {
+func (w *Weather) Evaluate(msg *tgbotapi.Message) (bool, error) {
 	if oldMsg == nil {
-		if msg.Text != w.Cmd.Exec {
-			return
+		if msg.Text != w.cmd.Exec {
+			return false, nil
 		}
 		oldMsg = msg
 		respMsg := tgbotapi.NewMessage(msg.Chat.ID, "Would you like to get forecast from your current location or Barcelona?")
@@ -53,35 +54,40 @@ func (w *Weather) Evaluate(msg *tgbotapi.Message) {
 		keyboard.OneTimeKeyboard = true
 		respMsg.ReplyMarkup = keyboard
 		_, err := w.sammy.Api.Send(respMsg)
-		check(err, "could not send message because: %v")
-		return
+		if err != nil {
+			return false, fmt.Errorf("could not send message because: %v", err)
+		}
+		return true, nil
 	}
 	newMsg := tgbotapi.NewMessage(msg.Chat.ID, "Sorry, this does not fit here...")
 	defer func() {
 		keyboard := tgbotapi.NewRemoveKeyboard(false)
 		newMsg.ReplyMarkup = keyboard
-		_, err := w.sammy.Api.Send(newMsg)
-		check(err, "could not send message because: %v")
+		w.sammy.Api.Send(newMsg)
 	}()
 
 	oldMsg = nil
 	request := buildRequest(w, msg)
 	if request == nil {
-		return
+		return false, nil
 	}
 	resp, err := http.Get(request.String())
 	defer resp.Body.Close()
-	check(err, "could not get an appropriate response: %v")
+	if err != nil {
+		return false, fmt.Errorf("could not get an appropriate response: %v", err)
+	}
 
 	body, err := ioutil.ReadAll(resp.Body)
 	wresp := Response{}
 	err = json.Unmarshal(body, &wresp)
-	check(err, "could not parse from json: %v")
-	if len(wresp.Conditions) == 0 {
-		return
+	if err != nil {
+		return false, fmt.Errorf("could not parse from json: %v", err)
 	}
-	var buffer bytes.Buffer
+	if len(wresp.Conditions) == 0 {
+		return false, fmt.Errorf("could not send message because: %v", errors.New("response is empty"))
+	}
 
+	var buffer bytes.Buffer
 	buffer.WriteString("Seems that we will have ")
 	buffer.WriteString(wresp.Conditions[0]["main"].(string) + " ")
 	switch wresp.Conditions[0]["id"].(float64) {
@@ -126,6 +132,7 @@ func (w *Weather) Evaluate(msg *tgbotapi.Message) {
 	buffer.WriteString(celsius.String())
 	newMsg.Text = buffer.String()
 
+	return true, nil
 }
 func buildRequest(w *Weather, msg *tgbotapi.Message) *bytes.Buffer {
 	buffer := new(bytes.Buffer)
@@ -145,11 +152,5 @@ func buildRequest(w *Weather, msg *tgbotapi.Message) *bytes.Buffer {
 }
 
 func (w *Weather) Description() string {
-	return w.Cmd.Exec + " - " + w.Cmd.Desc
-}
-
-func check(err error, msg string) {
-	if err != nil {
-		log.Printf(msg, err)
-	}
+	return w.cmd.Exec + " - " + w.cmd.Desc
 }

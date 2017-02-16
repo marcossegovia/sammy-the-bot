@@ -110,7 +110,7 @@ func (w *Weather) Evaluate(msg *tgbotapi.Message) (bool, error) {
 
 	//Fog
 	case 701, 711, 721, 731, 741, 751, 761, 762, 771, 781:
-		buffer.Write([]byte{240, 159, 140, 171})
+		buffer.Write([]byte{240, 159, 140, 129})
 
 	//Clear
 	case 800:

@@ -2,6 +2,7 @@ FROM alpine:latest
 MAINTAINER Marcos Segovia <velozmarkdrea@gmail.com>
 
 ENV GOPATH /go
+ENV PATH $GOPATH/bin:/usr/local/go/bin:$PATH
 
 COPY . /go/src/github.com/MarcosSegovia/sammy-the-bot
 

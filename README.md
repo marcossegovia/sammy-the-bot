@@ -28,3 +28,7 @@ weather = "YOUR-OPEN-WEATHER-MAP-DOT-ORG-TOKEN"
 ```
 - `go run main.go`
 - Enjoy your own botpher !
+
+## Contribution
+If you want to stay tuned about the new features Sammy is going to get, we encourage you to follow https://trello.com/b/U6k3ThJe/sammy
+And of course if you find something useful, get in touch by [opening an issue](https://github.com/MarcosSegovia/sammy-the-bot/issues/new) or [sending an email](mailto:velozmarkdrea@gmail.com)

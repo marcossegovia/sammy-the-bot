@@ -32,8 +32,11 @@ func (h *Help) Evaluate(msg *tgbotapi.Message) (bool, error) {
 	buffer.WriteString("Say _Hi_ !\n\n")
 	buffer.WriteString("*Commands*\n")
 	for _, cmd := range h.cnames {
-		buffer.WriteString(cmd)
+		buffer.WriteString(cmd + "\n")
 	}
+	buffer.WriteString("\n")
+	buffer.WriteString("*Integrations*\n")
+	buffer.WriteString("Github")
 	newMsg := tgbotapi.NewMessage(msg.Chat.ID, buffer.String())
 	newMsg.ParseMode = "Markdown"
 	_, err := h.sammy.Api.Send(newMsg)

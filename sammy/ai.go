@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"log"
+	"math/rand"
 
 	"github.com/go-telegram-bot-api/telegram-bot-api"
 )
@@ -30,4 +31,8 @@ func (s *Sammy) Process(msg *tgbotapi.Message) error {
 		return fmt.Errorf("could not send message because: %v", err)
 	}
 	return nil
+}
+
+func salute(salutations []string) string {
+	return salutations[rand.Intn(len(salutations))]
 }

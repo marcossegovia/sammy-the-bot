@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"net/http"
 
 	"github.com/MarcosSegovia/sammy-the-bot/help"
 	"github.com/MarcosSegovia/sammy-the-bot/sammy"
@@ -9,10 +10,10 @@ import (
 	"github.com/MarcosSegovia/sammy-the-bot/weather"
 	"github.com/go-telegram-bot-api/telegram-bot-api"
 	"github.com/spf13/viper"
+	"github.com/MarcosSegovia/sammy-the-bot/github"
 )
 
 func main() {
-	var commands *[]sammy.Command
 	brain, err := read("sammy_brain")
 	check(err, "could not read config file: %v")
 
@@ -22,6 +23,12 @@ func main() {
 	log.Printf("Authorized on account %v", api.Self.UserName)
 
 	s := sammy.NewSammy(brain, api)
+
+	hook := github.NewHook(s)
+	http.Handle("/github/hooks/", hook)
+	go http.ListenAndServe(":80", nil)
+
+	var commands *[]sammy.Command
 	commands = loadCommands(s)
 
 	u := tgbotapi.NewUpdate(0)

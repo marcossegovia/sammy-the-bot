@@ -54,10 +54,25 @@ type WebHookPayload struct {
 }
 
 type Payload struct {
-	Commits    []Commit `json:"commits"`
+	Ref        string `json:"ref"`
+	Created    bool `json:"created"`
+	Deleted    bool `json:"deleted"`
+	Forced     bool `json:"forced"`
 	CompareUrl string `json:"compare"`
+	Commits    []Commit `json:"commits"`
 	HeadCommit Commit `json:"head_commit"`
 	Pusher     Author `json:"pusher"`
+}
+
+func (p Payload) BranchName() string {
+	r, err := regexp.Compile("refs/heads/(.*)")
+	check(err, "could not set regular expression for github hooks: %v")
+	matches := r.FindStringSubmatch(p.Ref)
+	if matches[1] == "" {
+		fmt.Errorf("payload failed to send a valid branch name : %v", matches[1])
+	}
+
+	return matches[1]
 }
 
 type Commit struct {
@@ -79,7 +94,7 @@ type Author struct {
 func (h *Hook) pingEvent(user *sammy.User, req *http.Request) {
 	var buffer bytes.Buffer
 	buffer.WriteString("Your hook has correctly being set ! ")
-	buffer.Write([]byte{240, 159, 154, 128})
+	buffer.WriteString("\U0001F680")
 	msg := tgbotapi.NewMessage(user.ChatId, buffer.String())
 	h.sammy.Api.Send(msg)
 }
@@ -90,8 +105,18 @@ func (h *Hook) pushEvent(user *sammy.User, req *http.Request) {
 	decoder := json.NewDecoder(req.Body)
 	err := decoder.Decode(&payload)
 	check(err, "could not decode request values because: %v")
-	buffer.Write([]byte{226, 172, 134})
-	buffer.WriteString(payload.Pusher.Name + " has **pushed** " + strconv.Itoa(len(payload.Commits)) + " commits, some are: \n")
+
+	if payload.Deleted {
+		buffer.WriteString("\U0000274C")
+		buffer.WriteString(payload.Pusher.Name + " has *deleted* branch " + payload.BranchName())
+		msg := tgbotapi.NewMessage(user.ChatId, buffer.String())
+		msg.ParseMode = "Markdown"
+		h.sammy.Api.Send(msg)
+		return
+	}
+
+	buffer.WriteString("\U00002B06")
+	buffer.WriteString(payload.Pusher.Name + " has *pushed* " + strconv.Itoa(len(payload.Commits)) + " commits to " + payload.BranchName() + ": \n")
 	for _, commit := range payload.Commits {
 		buffer.WriteString("> [" + commit.Id + "](" + commit.Url + ") " + commit.Message + " - " + commit.Committer.Name + "\n")
 	}

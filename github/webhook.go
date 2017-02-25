@@ -46,6 +46,8 @@ func (h *Hook) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 		h.pingEvent(user, req)
 	case "push":
 		h.pushEvent(user, req)
+	case "pull_request":
+		h.pullRequestEvent(user, req)
 	}
 }
 
@@ -54,14 +56,16 @@ type WebHookPayload struct {
 }
 
 type Payload struct {
-	Ref        string `json:"ref"`
-	Created    bool `json:"created"`
-	Deleted    bool `json:"deleted"`
-	Forced     bool `json:"forced"`
-	CompareUrl string `json:"compare"`
-	Commits    []Commit `json:"commits"`
-	HeadCommit Commit `json:"head_commit"`
-	Pusher     Author `json:"pusher"`
+	Ref         string `json:"ref"`
+	Action      string `json:"action"`
+	PullRequest PullRequest `json:"pull_request"`
+	Created     bool `json:"created"`
+	Deleted     bool `json:"deleted"`
+	Forced      bool `json:"forced"`
+	CompareUrl  string `json:"compare"`
+	Commits     []Commit `json:"commits"`
+	HeadCommit  Commit `json:"head_commit"`
+	Pusher      Author `json:"pusher"`
 }
 
 func (p Payload) BranchName() string {
@@ -73,6 +77,23 @@ func (p Payload) BranchName() string {
 	}
 
 	return matches[1]
+}
+
+type PullRequest struct {
+	Id               int `json:"number"`
+	State            string `json:"state"`
+	Title            string `json:"title"`
+	Author           User `json:"user"`
+	Body             string `json:"body"`
+	CreatedAt        time.Time `json:"created_at"`
+	Url              string `json:"html_url"`
+	RequestReviewers []User `json:"requested_reviewers"`
+	Merged           bool `json:"merged"`
+}
+
+type User struct {
+	Id    int `json:"id"`
+	Login string `json:"login"`
 }
 
 type Commit struct {
@@ -122,6 +143,39 @@ func (h *Hook) pushEvent(user *sammy.User, req *http.Request) {
 	}
 	if len(payload.Commits) > 1 {
 		buffer.WriteString("Go to the last commit >>> [" + payload.HeadCommit.Id + "](" + payload.HeadCommit.Url + ")")
+	}
+
+	msg := tgbotapi.NewMessage(user.ChatId, buffer.String())
+	msg.ParseMode = "Markdown"
+	h.sammy.Api.Send(msg)
+}
+
+func (h *Hook) pullRequestEvent(user *sammy.User, req *http.Request) {
+	var payload Payload
+	var buffer bytes.Buffer
+	decoder := json.NewDecoder(req.Body)
+	err := decoder.Decode(&payload)
+	check(err, "could not decode request values because: %v")
+
+	switch payload.Action {
+	case "review_requested":
+		buffer.WriteString("\U0001F3A9")
+		buffer.WriteString(" " + payload.PullRequest.Author.Login + " has *requested a review* to ")
+		for _, reviewer := range payload.PullRequest.RequestReviewers {
+			buffer.WriteString("\U0001F46E")
+			buffer.WriteString(" " + reviewer.Login + " ")
+		}
+		buffer.WriteString("\n in pull request [#" + strconv.Itoa(payload.PullRequest.Id) + "]("+ payload.PullRequest.Url + ")")
+	case "opened":
+		buffer.WriteString("\U0001F3A9")
+		buffer.WriteString(payload.PullRequest.Author.Login + " has *opened a pull request* [#" + strconv.Itoa(payload.PullRequest.Id) + "]("+ payload.PullRequest.Url + ") \n")
+	case "closed":
+		buffer.WriteString("Pull request [#" + strconv.Itoa(payload.PullRequest.Id) + "](" + payload.PullRequest.Url + ") has been closed")
+		if payload.PullRequest.Merged {
+			buffer.WriteString(" and fully merged ")
+			buffer.WriteString("\U00002705")
+		}
+
 	}
 
 	msg := tgbotapi.NewMessage(user.ChatId, buffer.String())

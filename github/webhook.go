@@ -66,6 +66,7 @@ type Payload struct {
 	Commits     []Commit `json:"commits"`
 	HeadCommit  Commit `json:"head_commit"`
 	Pusher      Author `json:"pusher"`
+	Repository  Repository `json:"repository"`
 }
 
 func (p Payload) BranchName() string {
@@ -112,6 +113,12 @@ type Author struct {
 	Username string `json:"username,omitempty"`
 }
 
+type Repository struct {
+	Id int `json:"id"`
+	Name string `json:"name"`
+	FullName string `json:"full_name"`
+}
+
 func (h *Hook) pingEvent(user *sammy.User, req *http.Request) {
 	var buffer bytes.Buffer
 	buffer.WriteString("Your hook has correctly being set ! ")
@@ -127,6 +134,7 @@ func (h *Hook) pushEvent(user *sammy.User, req *http.Request) {
 	err := decoder.Decode(&payload)
 	check(err, "could not decode request values because: %v")
 
+	buffer.WriteString("[["+payload.Repository.FullName+"]]\n")
 	if payload.Deleted {
 		buffer.WriteString("\U0000274C")
 		buffer.WriteString(payload.Pusher.Name + " has *deleted* branch " + payload.BranchName())
@@ -157,6 +165,7 @@ func (h *Hook) pullRequestEvent(user *sammy.User, req *http.Request) {
 	err := decoder.Decode(&payload)
 	check(err, "could not decode request values because: %v")
 
+	buffer.WriteString("[["+payload.Repository.FullName+"]]\n")
 	switch payload.Action {
 	case "review_requested":
 		buffer.WriteString("\U0001F3A9")
@@ -165,10 +174,10 @@ func (h *Hook) pullRequestEvent(user *sammy.User, req *http.Request) {
 			buffer.WriteString("\U0001F46E")
 			buffer.WriteString(" " + reviewer.Login + " ")
 		}
-		buffer.WriteString("\n in pull request [#" + strconv.Itoa(payload.PullRequest.Id) + "]("+ payload.PullRequest.Url + ")")
+		buffer.WriteString("\n in pull request [#" + strconv.Itoa(payload.PullRequest.Id) + "](" + payload.PullRequest.Url + ")")
 	case "opened":
 		buffer.WriteString("\U0001F3A9")
-		buffer.WriteString(payload.PullRequest.Author.Login + " has *opened a pull request* [#" + strconv.Itoa(payload.PullRequest.Id) + "]("+ payload.PullRequest.Url + ") \n")
+		buffer.WriteString(payload.PullRequest.Author.Login + " has *opened a pull request* [#" + strconv.Itoa(payload.PullRequest.Id) + "](" + payload.PullRequest.Url + ") \n")
 	case "closed":
 		buffer.WriteString("Pull request [#" + strconv.Itoa(payload.PullRequest.Id) + "](" + payload.PullRequest.Url + ") has been closed")
 		if payload.PullRequest.Merged {

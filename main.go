@@ -11,6 +11,7 @@ import (
 	"github.com/go-telegram-bot-api/telegram-bot-api"
 	"github.com/spf13/viper"
 	"github.com/MarcosSegovia/sammy-the-bot/github"
+	"github.com/MarcosSegovia/sammy-the-bot/user"
 )
 
 func main() {
@@ -22,7 +23,9 @@ func main() {
 	check(err, "could not initialize bot: %v")
 	log.Printf("Authorized on account %v", api.Self.UserName)
 
-	s := sammy.NewSammy(brain, api)
+	userRepository := user.NewUserRepository("sammy-host:6379", "", 0)
+
+	s := sammy.NewSammy(brain, api, userRepository)
 
 	hook := github.NewHook(s)
 	http.Handle("/github/hooks/", hook)
@@ -71,7 +74,10 @@ func loadCommands(s *sammy.Sammy) *[]sammy.Command {
 	*cmds = append(*cmds, startCmd)
 	weatherCmd := weather.NewWeather(s)
 	*cmds = append(*cmds, weatherCmd)
+	githubCmd := github.NewGithub(s)
+	*cmds = append(*cmds, githubCmd)
 	cnames = append(cnames, weatherCmd.Description())
+	cnames = append(cnames, githubCmd.Description())
 	*cmds = append(*cmds, help.NewHelp(s, cnames))
 
 	return cmds

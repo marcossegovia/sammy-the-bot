@@ -13,6 +13,7 @@ import (
 
 	"github.com/MarcosSegovia/sammy-the-bot/sammy"
 	"github.com/go-telegram-bot-api/telegram-bot-api"
+	"github.com/MarcosSegovia/sammy-the-bot/user"
 )
 
 type Hook struct {
@@ -32,10 +33,10 @@ func (h *Hook) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	check(err, "could not set regular expression for github hooks: %v")
 	matches := r.FindStringSubmatch(req.URL.Path)
 	if matches[1] == "" {
-		fmt.Errorf("payload failed to send a valid chatId : %v", matches[1])
+		fmt.Errorf("payload failed to send a valid userId : %v", matches[1])
 	}
-	chatId, err := strconv.ParseInt(matches[1], 10, 64)
-	user, err := h.sammy.GetUser(chatId)
+
+	user, err := h.sammy.GetUser(matches[1])
 	if err != nil {
 		check(err, "could not get user because: %v")
 		return
@@ -119,7 +120,7 @@ type Repository struct {
 	FullName string `json:"full_name"`
 }
 
-func (h *Hook) pingEvent(user *sammy.User, req *http.Request) {
+func (h *Hook) pingEvent(user *user.User, req *http.Request) {
 	var buffer bytes.Buffer
 	buffer.WriteString("Your hook has correctly being set ! ")
 	buffer.WriteString("\U0001F680")
@@ -127,7 +128,7 @@ func (h *Hook) pingEvent(user *sammy.User, req *http.Request) {
 	h.sammy.Api.Send(msg)
 }
 
-func (h *Hook) pushEvent(user *sammy.User, req *http.Request) {
+func (h *Hook) pushEvent(user *user.User, req *http.Request) {
 	var payload Payload
 	var buffer bytes.Buffer
 	decoder := json.NewDecoder(req.Body)
@@ -158,7 +159,7 @@ func (h *Hook) pushEvent(user *sammy.User, req *http.Request) {
 	h.sammy.Api.Send(msg)
 }
 
-func (h *Hook) pullRequestEvent(user *sammy.User, req *http.Request) {
+func (h *Hook) pullRequestEvent(user *user.User, req *http.Request) {
 	var payload Payload
 	var buffer bytes.Buffer
 	decoder := json.NewDecoder(req.Body)

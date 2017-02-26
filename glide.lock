@@ -1,8 +1,8 @@
-hash: e5dd74170e843b4dc4f0f937433d0442678439de6d8c90a1b74e231132488595
-updated: 2017-01-29T13:33:45.243655433+01:00
+hash: e79a9a69ea9f6ea0d2879bd722820ea8aac319ce9f2cd5242fac247bb72c3f31
+updated: 2017-02-25T16:06:08.868456159+01:00
 imports:
-- name: github.com/danbondd/temperature
-  version: 4fdde2edb20d5684a93b0ebaa0996e3c1e454735
+- name: github.com/danbondd/tempconv
+  version: 3664bed967ea89f9f655d911d172455ca5406c43
 - name: github.com/fsnotify/fsnotify
   version: fd9ec7deca8bf46ecd2a795baaacf2b3a9be1197
 - name: github.com/go-telegram-bot-api/telegram-bot-api
@@ -26,6 +26,8 @@ imports:
   version: df1e16fde7fc330a0ca68167c23bf7ed6ac31d6d
 - name: github.com/pelletier/go-toml
   version: 45932ad32dfdd20826f5671da37a5f3ce9f26a8d
+- name: github.com/satori/go.uuid
+  version: 879c5887cd475cd7864858769793b2ceb0d44feb
 - name: github.com/spf13/afero
   version: 06b7e5f50606ecd49148a01a6008942d9b669217
   subpackages:
@@ -49,6 +51,14 @@ imports:
   subpackages:
   - transform
   - unicode/norm
+- name: gopkg.in/redis.v5
+  version: cbad034630445e15fbcaa7e9904064dd67bce69b
+  subpackages:
+  - internal
+  - internal/consistenthash
+  - internal/hashtag
+  - internal/pool
+  - internal/proto
 - name: gopkg.in/yaml.v2
   version: a5b47d31c556af34a302ce5d659e6fea44d90de0
 testImports: []

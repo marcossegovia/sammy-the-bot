@@ -1,7 +1,6 @@
 package start
 
 import (
-	"strconv"
 	"fmt"
 	"bytes"
 
@@ -25,12 +24,19 @@ func (s *Start) Evaluate(msg *tgbotapi.Message) (bool, error) {
 	if msg.Text != s.cmd.Exec {
 		return false, nil
 	}
-	s.sammy.AddChatId(msg.Chat.ID, msg.Chat.UserName)
+	userId, err := s.sammy.GetUserIdByChatId(msg.Chat.ID)
+	if err != nil {
+		return false, fmt.Errorf("could not add user because: %v", err)
+	}
+	if userId == "" {
+		err = s.sammy.AddUser(sammy.NewUser(msg.Chat.ID, msg.Chat.UserName))
+	}
+
 	var buffer bytes.Buffer
-	buffer.WriteString("Hi there ! Your chat id is the following: " + strconv.FormatInt(msg.Chat.ID, 10) + "\n")
+	buffer.WriteString("Hi there ! "+ userId +"\n")
 	buffer.WriteString("Im your botpher assistance on whatever you need.\n My source code is in https://github.com/MarcosSegovia/sammy-the-bot\n Just follow /help to see things I can do. \n\n")
 	newMsg := tgbotapi.NewMessage(msg.Chat.ID, buffer.String())
-	_, err := s.sammy.Api.Send(newMsg)
+	_, err = s.sammy.Api.Send(newMsg)
 	if err != nil {
 		return false, fmt.Errorf("could not send message because: %v", err)
 	}

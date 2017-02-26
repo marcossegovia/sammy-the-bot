@@ -1,10 +1,10 @@
 package sammy
 
 import (
-	"fmt"
-
 	"github.com/go-telegram-bot-api/telegram-bot-api"
 	"github.com/spf13/viper"
+	"github.com/MarcosSegovia/sammy-the-bot/user"
+	"github.com/satori/go.uuid"
 )
 
 type Response struct {
@@ -16,33 +16,33 @@ func (r Response) String() string {
 	return string(r.Response)
 }
 
-type User struct {
-	ChatId int64
-	Name   string
+func NewUser(chatId int64, userName string) *user.User {
+	return &user.User{Id: uuid.NewV4().String(), ChatId: chatId, Name: userName}
 }
 
 type Sammy struct {
-	Brain    *viper.Viper
-	Config   *viper.Viper
-	Api      *tgbotapi.BotAPI
-	userChat map[int64]*User
+	Brain  *viper.Viper
+	Config *viper.Viper
+	Api    *tgbotapi.BotAPI
+	users  *user.UserRepository
 }
 
-func NewSammy(brain *viper.Viper, api *tgbotapi.BotAPI) *Sammy {
+func NewSammy(brain *viper.Viper, api *tgbotapi.BotAPI, userRepository *user.UserRepository) *Sammy {
 	s := new(Sammy)
 	s.Brain = brain
 	s.Api = api
-	s.userChat = make(map[int64]*User)
+	s.users = userRepository
 	return s
 }
 
-func (s *Sammy) AddChatId(chatId int64, username string) {
-	s.userChat[chatId] = &User{chatId, username}
+func (s *Sammy) AddUser(user *user.User) error {
+	return s.users.AddUser(user)
 }
 
-func (s *Sammy) GetUser(chatId int64) (*User, error) {
-	if user, ok := s.userChat[chatId]; ok {
-		return user, nil
-	}
-	return nil, fmt.Errorf("%v", "there is not a user registered given the chatId")
+func (s *Sammy) GetUser(userId string) (*user.User, error) {
+	return s.users.GetUser(userId)
+}
+
+func (s *Sammy) GetUserIdByChatId(chatId int64) (string, error){
+	return s.users.GetUserId(chatId)
 }

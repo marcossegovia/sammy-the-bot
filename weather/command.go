@@ -10,7 +10,7 @@ import (
 	"strconv"
 
 	"github.com/MarcosSegovia/sammy-the-bot/sammy"
-	"github.com/danbondd/temperature/tempconv"
+	"github.com/danbondd/tempconv"
 	"github.com/go-telegram-bot-api/telegram-bot-api"
 )
 

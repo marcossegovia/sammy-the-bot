@@ -29,7 +29,7 @@ func NewHook(s *sammy.Sammy) *Hook {
 func (h *Hook) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	io.WriteString(res, "Hook received !")
 
-	r, err := regexp.Compile("/github/hooks/([0-9]+)")
+	r, err := regexp.Compile("/github/hooks/(.*)")
 	check(err, "could not set regular expression for github hooks: %v")
 	matches := r.FindStringSubmatch(req.URL.Path)
 	if matches[1] == "" {

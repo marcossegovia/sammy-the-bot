@@ -115,8 +115,8 @@ type Author struct {
 }
 
 type Repository struct {
-	Id int `json:"id"`
-	Name string `json:"name"`
+	Id       int `json:"id"`
+	Name     string `json:"name"`
 	FullName string `json:"full_name"`
 }
 
@@ -135,7 +135,7 @@ func (h *Hook) pushEvent(user *user.User, req *http.Request) {
 	err := decoder.Decode(&payload)
 	check(err, "could not decode request values because: %v")
 
-	buffer.WriteString("[["+payload.Repository.FullName+"]]\n")
+	buffer.WriteString("[[" + payload.Repository.FullName + "]]\n")
 	if payload.Deleted {
 		buffer.WriteString("\U0000274C")
 		buffer.WriteString(payload.Pusher.Name + " has *deleted* branch " + payload.BranchName())
@@ -165,10 +165,9 @@ func (h *Hook) pullRequestEvent(user *user.User, req *http.Request) {
 	decoder := json.NewDecoder(req.Body)
 	err := decoder.Decode(&payload)
 	check(err, "could not decode request values because: %v")
-
-	buffer.WriteString("[["+payload.Repository.FullName+"]]\n")
 	switch payload.Action {
 	case "review_requested":
+		buffer.WriteString("[["+payload.Repository.FullName+"]]\n")
 		buffer.WriteString("\U0001F3A9")
 		buffer.WriteString(" " + payload.PullRequest.Author.Login + " has *requested a review* to ")
 		for _, reviewer := range payload.PullRequest.RequestReviewers {
@@ -177,9 +176,11 @@ func (h *Hook) pullRequestEvent(user *user.User, req *http.Request) {
 		}
 		buffer.WriteString("\n in pull request [#" + strconv.Itoa(payload.PullRequest.Id) + "](" + payload.PullRequest.Url + ")")
 	case "opened":
+		buffer.WriteString("[["+payload.Repository.FullName+"]]\n")
 		buffer.WriteString("\U0001F3A9")
 		buffer.WriteString(payload.PullRequest.Author.Login + " has *opened a pull request* [#" + strconv.Itoa(payload.PullRequest.Id) + "](" + payload.PullRequest.Url + ") \n")
 	case "closed":
+		buffer.WriteString("[["+payload.Repository.FullName+"]]\n")
 		buffer.WriteString("Pull request [#" + strconv.Itoa(payload.PullRequest.Id) + "](" + payload.PullRequest.Url + ") has been closed")
 		if payload.PullRequest.Merged {
 			buffer.WriteString(" and fully merged ")

@@ -11,9 +11,9 @@ import (
 	"time"
 	"encoding/json"
 
-	"github.com/MarcosSegovia/sammy-the-bot/sammy"
+	"github.com/marcossegovia/sammy-the-bot/sammy"
 	"github.com/go-telegram-bot-api/telegram-bot-api"
-	"github.com/MarcosSegovia/sammy-the-bot/user"
+	"github.com/marcossegovia/sammy-the-bot/user"
 )
 
 type Hook struct {
@@ -130,11 +130,11 @@ func (h *Hook) pingEvent(user *user.User, req *http.Request) {
 
 func (h *Hook) pushEvent(user *user.User, req *http.Request) {
 	var payload Payload
-	var buffer bytes.Buffer
 	decoder := json.NewDecoder(req.Body)
 	err := decoder.Decode(&payload)
 	check(err, "could not decode request values because: %v")
 
+	var buffer bytes.Buffer
 	buffer.WriteString("[[" + payload.Repository.FullName + "]]\n")
 	if payload.Deleted {
 		buffer.WriteString("\U0000274C")
@@ -161,10 +161,10 @@ func (h *Hook) pushEvent(user *user.User, req *http.Request) {
 
 func (h *Hook) pullRequestEvent(user *user.User, req *http.Request) {
 	var payload Payload
-	var buffer bytes.Buffer
 	decoder := json.NewDecoder(req.Body)
 	err := decoder.Decode(&payload)
 	check(err, "could not decode request values because: %v")
+	var buffer bytes.Buffer
 	switch payload.Action {
 	case "review_requested":
 		buffer.WriteString("[["+payload.Repository.FullName+"]]\n")

@@ -4,14 +4,14 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/MarcosSegovia/sammy-the-bot/help"
-	"github.com/MarcosSegovia/sammy-the-bot/sammy"
-	"github.com/MarcosSegovia/sammy-the-bot/start"
-	"github.com/MarcosSegovia/sammy-the-bot/weather"
+	"github.com/marcossegovia/sammy-the-bot/help"
+	"github.com/marcossegovia/sammy-the-bot/sammy"
+	"github.com/marcossegovia/sammy-the-bot/start"
+	"github.com/marcossegovia/sammy-the-bot/weather"
 	"github.com/go-telegram-bot-api/telegram-bot-api"
 	"github.com/spf13/viper"
-	"github.com/MarcosSegovia/sammy-the-bot/github"
-	"github.com/MarcosSegovia/sammy-the-bot/user"
+	"github.com/marcossegovia/sammy-the-bot/github"
+	"github.com/marcossegovia/sammy-the-bot/user"
 )
 
 func main() {

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"bytes"
 
-	"github.com/MarcosSegovia/sammy-the-bot/sammy"
+	"github.com/marcossegovia/sammy-the-bot/sammy"
 	"github.com/go-telegram-bot-api/telegram-bot-api"
 )
 
@@ -34,7 +34,7 @@ func (s *Start) Evaluate(msg *tgbotapi.Message) (bool, error) {
 
 	var buffer bytes.Buffer
 	buffer.WriteString("Hi there !\n")
-	buffer.WriteString("Im your botpher assistance on whatever you need.\n My source code is in https://github.com/MarcosSegovia/sammy-the-bot\n Just follow /help to see things I can do. \n\n")
+	buffer.WriteString("Im your botpher assistance on whatever you need.\n My source code is in https://github.com/marcossegovia/sammy-the-bot\n Just follow /help to see things I can do. \n\n")
 	newMsg := tgbotapi.NewMessage(msg.Chat.ID, buffer.String())
 	_, err = s.sammy.Api.Send(newMsg)
 	if err != nil {

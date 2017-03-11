@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"bytes"
 
-	"github.com/MarcosSegovia/sammy-the-bot/sammy"
+	"github.com/marcossegovia/sammy-the-bot/sammy"
 	"github.com/go-telegram-bot-api/telegram-bot-api"
 )
 

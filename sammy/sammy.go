@@ -3,7 +3,7 @@ package sammy
 import (
 	"github.com/go-telegram-bot-api/telegram-bot-api"
 	"github.com/spf13/viper"
-	"github.com/MarcosSegovia/sammy-the-bot/user"
+	"github.com/marcossegovia/sammy-the-bot/user"
 	"github.com/satori/go.uuid"
 )
 

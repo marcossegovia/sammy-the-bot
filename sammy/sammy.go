@@ -2,9 +2,9 @@ package sammy
 
 import (
 	"github.com/go-telegram-bot-api/telegram-bot-api"
-	"github.com/spf13/viper"
 	"github.com/marcossegovia/sammy-the-bot/user"
 	"github.com/satori/go.uuid"
+	"github.com/spf13/viper"
 )
 
 type Response struct {
@@ -43,6 +43,6 @@ func (s *Sammy) GetUser(userId string) (*user.User, error) {
 	return s.users.GetUser(userId)
 }
 
-func (s *Sammy) GetUserIdByChatId(chatId int64) (string, error){
+func (s *Sammy) GetUserIdByChatId(chatId int64) (string, error) {
 	return s.users.GetUserId(chatId)
 }

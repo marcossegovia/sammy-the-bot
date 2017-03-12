@@ -1,11 +1,11 @@
 package github
 
 import (
-	"fmt"
 	"bytes"
+	"fmt"
 
-	"github.com/marcossegovia/sammy-the-bot/sammy"
 	"github.com/go-telegram-bot-api/telegram-bot-api"
+	"github.com/marcossegovia/sammy-the-bot/sammy"
 )
 
 type Github struct {

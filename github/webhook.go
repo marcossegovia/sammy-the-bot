@@ -1,18 +1,18 @@
 package github
 
 import (
-	"io"
-	"net/http"
+	"bytes"
+	"encoding/json"
 	"fmt"
+	"io"
+	"log"
+	"net/http"
 	"regexp"
 	"strconv"
-	"log"
-	"bytes"
 	"time"
-	"encoding/json"
 
-	"github.com/marcossegovia/sammy-the-bot/sammy"
 	"github.com/go-telegram-bot-api/telegram-bot-api"
+	"github.com/marcossegovia/sammy-the-bot/sammy"
 	"github.com/marcossegovia/sammy-the-bot/user"
 )
 
@@ -57,17 +57,17 @@ type WebHookPayload struct {
 }
 
 type Payload struct {
-	Ref         string `json:"ref"`
-	Action      string `json:"action"`
+	Ref         string      `json:"ref"`
+	Action      string      `json:"action"`
 	PullRequest PullRequest `json:"pull_request"`
-	Created     bool `json:"created"`
-	Deleted     bool `json:"deleted"`
-	Forced      bool `json:"forced"`
-	CompareUrl  string `json:"compare"`
-	Commits     []Commit `json:"commits"`
-	HeadCommit  Commit `json:"head_commit"`
-	Pusher      Author `json:"pusher"`
-	Repository  Repository `json:"repository"`
+	Created     bool        `json:"created"`
+	Deleted     bool        `json:"deleted"`
+	Forced      bool        `json:"forced"`
+	CompareUrl  string      `json:"compare"`
+	Commits     []Commit    `json:"commits"`
+	HeadCommit  Commit      `json:"head_commit"`
+	Pusher      Author      `json:"pusher"`
+	Repository  Repository  `json:"repository"`
 }
 
 func (p Payload) BranchName() string {
@@ -82,30 +82,30 @@ func (p Payload) BranchName() string {
 }
 
 type PullRequest struct {
-	Id               int `json:"number"`
-	State            string `json:"state"`
-	Title            string `json:"title"`
-	Author           User `json:"user"`
-	Body             string `json:"body"`
+	Id               int       `json:"number"`
+	State            string    `json:"state"`
+	Title            string    `json:"title"`
+	Author           User      `json:"user"`
+	Body             string    `json:"body"`
 	CreatedAt        time.Time `json:"created_at"`
-	Url              string `json:"html_url"`
-	RequestReviewers []User `json:"requested_reviewers"`
-	Merged           bool `json:"merged"`
+	Url              string    `json:"html_url"`
+	RequestReviewers []User    `json:"requested_reviewers"`
+	Merged           bool      `json:"merged"`
 }
 
 type User struct {
-	Id    int `json:"id"`
+	Id    int    `json:"id"`
 	Login string `json:"login"`
 }
 
 type Commit struct {
-	Id        string `json:"id"`
-	TreeId    string `json:"tree_id"`
-	Message   string `json:"message"`
+	Id        string    `json:"id"`
+	TreeId    string    `json:"tree_id"`
+	Message   string    `json:"message"`
 	Timestamp time.Time `json:"timestamp"`
-	Author    Author `json:"author"`
-	Committer Author `json:"committer"`
-	Url       string `json:"url"`
+	Author    Author    `json:"author"`
+	Committer Author    `json:"committer"`
+	Url       string    `json:"url"`
 }
 
 type Author struct {
@@ -115,7 +115,7 @@ type Author struct {
 }
 
 type Repository struct {
-	Id       int `json:"id"`
+	Id       int    `json:"id"`
 	Name     string `json:"name"`
 	FullName string `json:"full_name"`
 }
@@ -167,7 +167,7 @@ func (h *Hook) pullRequestEvent(user *user.User, req *http.Request) {
 	var buffer bytes.Buffer
 	switch payload.Action {
 	case "review_requested":
-		buffer.WriteString("[["+payload.Repository.FullName+"]]\n")
+		buffer.WriteString("[[" + payload.Repository.FullName + "]]\n")
 		buffer.WriteString("\U0001F3A9")
 		buffer.WriteString(" " + payload.PullRequest.Author.Login + " has *requested a review* to ")
 		for _, reviewer := range payload.PullRequest.RequestReviewers {
@@ -176,11 +176,11 @@ func (h *Hook) pullRequestEvent(user *user.User, req *http.Request) {
 		}
 		buffer.WriteString("\n in pull request [#" + strconv.Itoa(payload.PullRequest.Id) + "](" + payload.PullRequest.Url + ")")
 	case "opened":
-		buffer.WriteString("[["+payload.Repository.FullName+"]]\n")
+		buffer.WriteString("[[" + payload.Repository.FullName + "]]\n")
 		buffer.WriteString("\U0001F3A9")
 		buffer.WriteString(payload.PullRequest.Author.Login + " has *opened a pull request* [#" + strconv.Itoa(payload.PullRequest.Id) + "](" + payload.PullRequest.Url + ") \n")
 	case "closed":
-		buffer.WriteString("[["+payload.Repository.FullName+"]]\n")
+		buffer.WriteString("[[" + payload.Repository.FullName + "]]\n")
 		buffer.WriteString("Pull request [#" + strconv.Itoa(payload.PullRequest.Id) + "](" + payload.PullRequest.Url + ") has been closed")
 		if payload.PullRequest.Merged {
 			buffer.WriteString(" and fully merged ")

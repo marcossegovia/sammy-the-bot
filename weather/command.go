@@ -9,9 +9,9 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/marcossegovia/sammy-the-bot/sammy"
 	"github.com/danbondd/tempconv"
 	"github.com/go-telegram-bot-api/telegram-bot-api"
+	"github.com/marcossegovia/sammy-the-bot/sammy"
 )
 
 const (

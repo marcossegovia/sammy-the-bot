@@ -1,5 +1,5 @@
-hash: 5e7f5a3dd1a777b851c6a341b256e9908431d2044b6535a1a308d4bcb4ccd055
-updated: 2017-03-11T16:27:20.822818365+01:00
+hash: 4977023e15041f9f4c280036a0c65bfb781f198c9af065e1ca2bc597d0eb4103
+updated: 2017-03-18T21:34:01.033639542+01:00
 imports:
 - name: github.com/danbondd/tempconv
   version: 3664bed967ea89f9f655d911d172455ca5406c43
@@ -22,6 +22,8 @@ imports:
   version: 4442edb3db31196622da56482fd8d0fa375fba4d
 - name: github.com/magiconair/properties
   version: 0723e352fa358f9322c938cc2dadda874e9151a9
+- name: github.com/marcossegovia/apiai-go
+  version: f44831ffe51624ea0b4b7a949aba9e036d6f83a9
 - name: github.com/mitchellh/mapstructure
   version: f3009df150dadf309fdee4a54ed65c124afad715
 - name: github.com/pelletier/go-buffruneio
@@ -67,12 +69,4 @@ imports:
   - internal/proto
 - name: gopkg.in/yaml.v2
   version: a5b47d31c556af34a302ce5d659e6fea44d90de0
-testImports:
-- name: github.com/davecgh/go-spew
-  version: 04cdfd42973bb9c8589fd6a731800cf222fde1a9
-  subpackages:
-  - spew
-- name: github.com/pmezard/go-difflib
-  version: d8ed2627bdf02c080bf22230dbb337003b7aba2d
-  subpackages:
-  - difflib
+testImports: []

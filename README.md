@@ -11,20 +11,17 @@ If you want to get your own sammy clone:
 - Follow this [link](https://core.telegram.org/bots#3-how-do-i-create-a-bot) and create a Bot through BotFather
 - Download the repo `go get github.com/marcossegovia/sammy-the-bot`
 - Generate a `sammy_brain.toml` inside project root, at least like the following:
-```toml
-[welcome]
-salutations = [
-    "Hey, are you doing fine?",
-    "Nice to hear from you, sir",
-    "How are you feeling?",
-    "Hi",
-    "Time to make me work?",
-    "It's been a while, it's all okay?"
-]
 
+```toml
 [configuration]
+# Telegram bot token to be able to send/retrieve messages
 telegram = "YOUR-TELEGRAM-BOT-TOKEN"
+# http://openweathermap.org/ token to retrieve weather on your bot
 weather = "YOUR-OPEN-WEATHER-MAP-DOT-ORG-TOKEN"
+# Managing Entities/Entities of your api.ai account
+api_ai_developer = "YOUR-API-DOT-AI-DEVELOPER-TOKEN"
+# Making queries to your api.ai account
+api_ai_client = "YOUR-API-DOT-AI-CLIENT-TOKEN"
 ```
 - `go run main.go`
 - Enjoy your own botpher !

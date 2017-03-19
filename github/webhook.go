@@ -33,7 +33,7 @@ func (h *Hook) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	check(err, "could not set regular expression for github hooks: %v")
 	matches := r.FindStringSubmatch(req.URL.Path)
 	if matches[1] == "" {
-		fmt.Errorf("payload failed to send a valid userId : %v", matches[1])
+		fmt.Printf("payload failed to send a valid userId : %v", matches[1])
 	}
 
 	user, err := h.sammy.GetUser(matches[1])
@@ -75,7 +75,7 @@ func (p Payload) BranchName() string {
 	check(err, "could not set regular expression for github hooks: %v")
 	matches := r.FindStringSubmatch(p.Ref)
 	if matches[1] == "" {
-		fmt.Errorf("payload failed to send a valid branch name : %v", matches[1])
+		fmt.Printf("payload failed to send a valid branch name : %v", matches[1])
 	}
 
 	return matches[1]

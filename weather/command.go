@@ -39,7 +39,6 @@ func NewWeather(s *sammy.Sammy) *Weather {
 
 var oldMsg *tgbotapi.Message
 
-//return errors
 func (w *Weather) Evaluate(msg *tgbotapi.Message) (bool, error) {
 	if oldMsg == nil {
 		if msg.Text != w.cmd.Exec {
@@ -72,10 +71,10 @@ func (w *Weather) Evaluate(msg *tgbotapi.Message) (bool, error) {
 		return false, nil
 	}
 	resp, err := http.Get(request.String())
-	defer resp.Body.Close()
 	if err != nil {
 		return false, fmt.Errorf("could not get an appropriate response: %v", err)
 	}
+	defer resp.Body.Close()
 
 	body, err := ioutil.ReadAll(resp.Body)
 	wresp := Response{}
@@ -134,6 +133,7 @@ func (w *Weather) Evaluate(msg *tgbotapi.Message) (bool, error) {
 
 	return true, nil
 }
+
 func buildRequest(w *Weather, msg *tgbotapi.Message) *bytes.Buffer {
 	buffer := new(bytes.Buffer)
 	buffer.WriteString("http://api.openweathermap.org/data/2.5/weather?appid=")

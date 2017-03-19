@@ -1,4 +1,4 @@
-![Go Report Card](https://goreportcard.com/badge/github.com/marcossegovia/sammy-the-bot)
+[![Go Report Card](https://goreportcard.com/badge/github.com/marcossegovia/sammy-the-bot)](https://goreportcard.com/report/github.com/marcossegovia/sammy-the-bot)
 
 # Sammy the Botpher <img alt="Sammy" src="sammy.png" width="162,5">
 

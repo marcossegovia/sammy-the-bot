@@ -2,3 +2,6 @@ vendor/*/
 bin
 .env
 sammy_brain.toml
+deploy.yml
+hosts.yml
+deploy.retry

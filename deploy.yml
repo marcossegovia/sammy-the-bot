@@ -1,0 +1,23 @@
+- name: build and push sammy
+  hosts: localhost
+  connection: local
+  tasks:
+    - name: build the image
+      command: docker build -t marcossegovia/sammy-the-bot .
+    - name: push the image
+      command: docker push marcossegovia/sammy-the-bot:latest
+
+- name: Run new sammy container in server
+  hosts: sammy_server
+  remote_user: root
+  tasks:
+    - name: Pull sammy image from registry
+      command: docker pull marcossegovia/sammy-the-bot
+    - name: Stop sammy
+      command: docker stop sammy
+      ignore_errors: yes
+    - name: Kill sammy
+      command: docker rm sammy
+      ignore_errors: yes
+    - name: Run new sammy container in server
+      command: docker run --add-host sammy-host:172.17.0.1 -d -p 80:80 --name sammy marcossegovia/sammy-the-bot

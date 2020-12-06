@@ -1,18 +1,10 @@
-FROM alpine:latest
-MAINTAINER Marcos Segovia <velozmarkdrea@gmail.com>
+FROM golang:1.14 as base
 
-ENV GOPATH /go
-ENV PATH $GOPATH/bin:/usr/local/go/bin:$PATH
+WORKDIR /go/src/sammy
 
-COPY . /go/src/github.com/marcossegovia/sammy-the-bot
+COPY . .
 
-RUN apk add --update git go musl-dev &&\
-    git config --global http.sslVerify true &&\
-    apk add --no-cache ca-certificates &&\
-    cd /go/src/github.com/marcossegovia/sammy-the-bot &&\
-    go build -o sammy-the-bot &&\
-    apk del go git
+RUN go get -d -v ./...
+RUN go build main.go
 
-EXPOSE 80
-WORKDIR /go/src/github.com/marcossegovia/sammy-the-bot
-CMD ["./sammy-the-bot"]
+CMD ["./main"]

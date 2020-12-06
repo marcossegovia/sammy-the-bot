@@ -9,7 +9,7 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/danbondd/tempconv"
+	"github.com/syscll/tempconv"
 	"github.com/go-telegram-bot-api/telegram-bot-api"
 	"github.com/marcossegovia/sammy-the-bot/sammy"
 )

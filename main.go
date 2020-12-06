@@ -2,14 +2,11 @@ package main
 
 import (
 	"log"
-	"net/http"
 
-	"github.com/go-telegram-bot-api/telegram-bot-api"
-	"github.com/marcossegovia/sammy-the-bot/github"
+	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 	"github.com/marcossegovia/sammy-the-bot/help"
 	"github.com/marcossegovia/sammy-the-bot/sammy"
 	"github.com/marcossegovia/sammy-the-bot/start"
-	"github.com/marcossegovia/sammy-the-bot/user"
 	"github.com/marcossegovia/sammy-the-bot/weather"
 	"github.com/spf13/viper"
 )
@@ -23,13 +20,7 @@ func main() {
 	check(err, "could not initialize bot: %v")
 	log.Printf("Authorized on account %v", api.Self.UserName)
 
-	userRepository := user.NewUserRepository("sammy-host:6379", "", 0)
-
-	s := sammy.NewSammy(brain, api, userRepository)
-
-	hook := github.NewHook(s)
-	http.Handle("/github/hooks/", hook)
-	go http.ListenAndServe(":80", nil)
+	s := sammy.NewSammy(brain, api)
 
 	var commands *[]sammy.Command
 	commands = loadCommands(s)
@@ -42,28 +33,19 @@ func main() {
 	for update := range updates {
 		msg := update.Message
 		if update.CallbackQuery != nil {
-			//	sammy.Api.AnswerCallbackQuery(tgbotapi.NewCallback(update.CallbackQuery.ID, ""))
-			//	msg := tgbotapi.NewMessage(update.CallbackQuery.Message.Chat.ID, update.CallbackQuery.Data)
-			//	sammy.Api.Send(msg)
-			//	check(err, "could not send message because: %v")
-			//	continue
+			s.Api.AnswerCallbackQuery(tgbotapi.NewCallback(update.CallbackQuery.ID, ""))
+			msg := tgbotapi.NewMessage(update.CallbackQuery.Message.Chat.ID, update.CallbackQuery.Data)
+			s.Api.Send(msg)
+			check(err, "could not send message because: %v")
+			continue
 		}
 		if update.Message == nil {
 			continue
 		}
-		commanded := false
 		for _, cmd := range *commands {
-			eval, err := cmd.Evaluate(msg)
-			if eval {
-				commanded = true
-			}
+			_, err := cmd.Evaluate(msg)
 			check(err, "command failed: %v")
 		}
-		if !commanded {
-			err = s.Process(msg)
-			check(err, "conversation failed: %v")
-		}
-		commanded = false
 	}
 }
 func loadCommands(s *sammy.Sammy) *[]sammy.Command {
@@ -71,13 +53,12 @@ func loadCommands(s *sammy.Sammy) *[]sammy.Command {
 	cnames := []string{}
 
 	startCmd := start.NewStart(s)
-	*cmds = append(*cmds, startCmd)
 	weatherCmd := weather.NewWeather(s)
+
+	*cmds = append(*cmds, startCmd)
 	*cmds = append(*cmds, weatherCmd)
-	githubCmd := github.NewGithub(s)
-	*cmds = append(*cmds, githubCmd)
+
 	cnames = append(cnames, weatherCmd.Description())
-	cnames = append(cnames, githubCmd.Description())
 	*cmds = append(*cmds, help.NewHelp(s, cnames))
 
 	return cmds

@@ -1,0 +1,7 @@
+version: '3'
+services:
+  sammy:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: marcossegovia/sammy

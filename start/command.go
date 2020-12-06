@@ -3,9 +3,9 @@ package start
 import (
 	"bytes"
 	"fmt"
-
-	"github.com/go-telegram-bot-api/telegram-bot-api"
 	"github.com/marcossegovia/sammy-the-bot/sammy"
+
+	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 )
 
 type Start struct {
@@ -24,19 +24,12 @@ func (s *Start) Evaluate(msg *tgbotapi.Message) (bool, error) {
 	if msg.Text != s.cmd.Exec {
 		return false, nil
 	}
-	userId, err := s.sammy.GetUserIdByChatId(msg.Chat.ID)
-	if err != nil {
-		return false, fmt.Errorf("could not add user because: %v", err)
-	}
-	if userId == "" {
-		err = s.sammy.AddUser(sammy.NewUser(msg.Chat.ID, msg.Chat.UserName))
-	}
 
 	var buffer bytes.Buffer
 	buffer.WriteString("Hi there !\n")
 	buffer.WriteString("Im your botpher assistance on whatever you need.\n My source code is in https://github.com/marcossegovia/sammy-the-bot\n Just follow /help to see things I can do. \n\n")
 	newMsg := tgbotapi.NewMessage(msg.Chat.ID, buffer.String())
-	_, err = s.sammy.Api.Send(newMsg)
+	_, err := s.sammy.Api.Send(newMsg)
 	if err != nil {
 		return false, fmt.Errorf("could not send message because: %v", err)
 	}
